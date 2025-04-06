@@ -1,3 +1,55 @@
+class Resource:
+    """
+    A class to represent a resource.
+    """
+
+    def __init__(self, name, amount):
+        """
+        Initialize the resource with a name and amount.
+
+        Parameters:
+        name (str): The name of the resource.
+        amount (int): The amount of the resource.
+        """
+        self.name = name
+        self.amount = amount
+
+    def __str__(self):
+        """
+        Return a string representation of the resource.
+
+        Returns:
+        str: The string representation of the resource.
+        """
+        return f"{self.name}: {self.amount}"
+    
+class Recipe:
+    """
+    A class to represent a recipe.
+    """
+
+    def __init__(self, name, ingredients, cost):
+        """
+        Initialize the recipe with a name, ingredients, and cost.
+
+        Parameters:
+        name (str): The name of the recipe.
+        ingredients (dict): The ingredients required for the recipe.
+        cost (float): The cost of the recipe.
+        """
+        self.name = name
+        self.ingredients = ingredients
+        self.cost = cost
+
+    def __str__(self):
+        """
+        Return a string representation of the recipe.
+
+        Returns:
+        str: The string representation of the recipe.
+        """
+        return f"{self.name}: {self.ingredients}, Cost: {self.cost}"
+    
 class CoffeeMachine:
     """
     A class to represent a coffee machine.
@@ -7,26 +59,27 @@ class CoffeeMachine:
         """
         Initialize the coffee machine with resources and menu.
         """
-        self.resources = {
-            "water": 300,
-            "milk": 200,
-            "coffee": 100,
-            "money": 0.0
-        }
-        self.menu = {
-            "espresso": {"water": 50, "milk": 0, "coffee": 18, "cost": 1.5},
-            "latte": {"water": 200, "milk": 150, "coffee": 24, "cost": 2.5},
-            "cappuccino": {"water": 250, "milk": 100, "coffee": 24, "cost": 3.0}
-        }
+        self.resources = [
+            Resource("water", 300),
+            Resource("milk", 200),
+            Resource("coffee", 100),
+            Resource("money", 0.0)
+        ]
+        self.menu = [
+            Recipe("espresso", {"water": 50, "milk": 0, "coffee": 18}, 1.5),
+            Recipe("latte", {"water": 200, "milk": 150, "coffee": 24}, 2.5),
+            Recipe("cappuccino", {"water": 250, "milk": 100, "coffee": 24}, 3.0)
+        ]
 
     def report(self):
         """
         Print the current resource values of the coffee machine.
         """
-        print(f"Water: {self.resources['water']}ml")
-        print(f"Milk: {self.resources['milk']}ml")
-        print(f"Coffee: {self.resources['coffee']}g")
-        print(f"Money: ${self.resources['money']}")
+        for resource in self.resources:
+            if resource.name == "money":
+                print(f"Money: ${resource.amount}")
+            else:
+                print(f"{resource.name.capitalize()}: {resource.amount}ml")
 
     def check_resources(self, drink):
         """
@@ -38,10 +91,13 @@ class CoffeeMachine:
         Returns:
         bool: True if there are enough resources, False otherwise.
         """
-        for item in self.menu[drink]:
-            if item != "cost" and self.resources[item] < self.menu[drink][item]:
-                print(f"Sorry there is not enough {item}.")
-                return False
+        for item in self.menu:
+            if item.name == drink:
+                for ingredient, amount in item.ingredients.items():
+                    for resource in self.resources:
+                        if resource.name == ingredient and resource.amount < amount:
+                            print(f"Sorry there is not enough {ingredient}.")
+                            return False
         return True
 
     def process_coins(self):
@@ -72,7 +128,9 @@ class CoffeeMachine:
         if money_received >= drink_cost:
             change = round(money_received - drink_cost, 2)
             print(f"Here is ${change} in change.")
-            self.resources["money"] += drink_cost
+            for resource in self.resources:
+                if resource.name == "money":
+                    resource.amount += drink_cost
             return True
         else:
             print("Sorry that's not enough money. Money refunded.")
@@ -85,9 +143,12 @@ class CoffeeMachine:
         Parameters:
         drink (str): The name of the drink to make.
         """
-        for item in self.menu[drink]:
-            if item != "cost":
-                self.resources[item] -= self.menu[drink][item]
+        for item in self.menu:
+            if item.name == drink:
+                for ingredient, amount in item.ingredients.items():
+                    for resource in self.resources:
+                        if resource.name == ingredient:
+                            resource.amount -= amount
         print(f"Here is your {drink}. Enjoy!")
 
     def start(self):
@@ -101,10 +162,10 @@ class CoffeeMachine:
                 is_on = False
             elif choice == "report":
                 self.report()
-            elif choice in self.menu:
+            elif choice in [item.name for item in self.menu]:
                 if self.check_resources(choice):
                     payment = self.process_coins()
-                    if self.transaction_successful(payment, self.menu[choice]["cost"]):
+                    if self.transaction_successful(payment, next(item.cost for item in self.menu if item.name == choice)):
                         self.make_coffee(choice)
             else:
                 print("Invalid choice. Please choose again.")
