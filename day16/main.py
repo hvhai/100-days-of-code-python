@@ -1,3 +1,7 @@
+from tkinter import Tk, Label, Button, StringVar, OptionMenu, Entry, messagebox
+# import tkinter as tk
+
+
 class Resource:
     """
     A class to represent a resource.
@@ -22,7 +26,54 @@ class Resource:
         str: The string representation of the resource.
         """
         return f"{self.name}: {self.amount}"
-    
+
+
+class Storage:
+    """
+    A class to represent a storage.
+    """
+
+    def __init__(self):
+        """
+        Initialize the storage with resources.
+        """
+        self.resources = [
+            Resource("water", 300),
+            Resource("milk", 200),
+            Resource("coffee", 100),
+            Resource("money", 0.0)
+        ]
+
+    def has_enough_resource(self, resource_name, amount):
+        """
+        Check if there is enough resource.
+
+        Parameters:
+        resource_name (str): The name of the resource.
+        amount (int): The amount of the resource to check.
+
+        Returns:
+        bool: True if there is enough resource, False otherwise.
+        """
+        for resource in self.resources:
+            if resource.name == resource_name:
+                return resource.amount >= amount
+        return False
+
+    def deduct_resource(self, resource_name, amount):
+        """
+        Deduct the resource amount.
+
+        Parameters:
+        resource_name (str): The name of the resource.
+        amount (int): The amount of the resource to deduct.
+        """
+        for resource in self.resources:
+            if resource.name == resource_name:
+                resource.amount -= amount
+                break
+
+
 class Recipe:
     """
     A class to represent a recipe.
@@ -34,11 +85,11 @@ class Recipe:
 
         Parameters:
         name (str): The name of the recipe.
-        ingredients (dict): The ingredients required for the recipe.
+        ingredients (list): A list of Resource objects required for the recipe.
         cost (float): The cost of the recipe.
         """
         self.name = name
-        self.ingredients = ingredients
+        self.ingredients = [Resource(name, amount) for name, amount in ingredients.items()]
         self.cost = cost
 
     def __str__(self):
@@ -48,8 +99,10 @@ class Recipe:
         Returns:
         str: The string representation of the recipe.
         """
-        return f"{self.name}: {self.ingredients}, Cost: {self.cost}"
-    
+        ingredients_str = ", ".join([str(ingredient) for ingredient in self.ingredients])
+        return f"{self.name}: {ingredients_str}, Cost: {self.cost}"
+
+
 class CoffeeMachine:
     """
     A class to represent a coffee machine.
@@ -57,14 +110,9 @@ class CoffeeMachine:
 
     def __init__(self):
         """
-        Initialize the coffee machine with resources and menu.
+        Initialize the coffee machine with storage and menu.
         """
-        self.resources = [
-            Resource("water", 300),
-            Resource("milk", 200),
-            Resource("coffee", 100),
-            Resource("money", 0.0)
-        ]
+        self.storage = Storage()  # Use Storage class for resources
         self.menu = [
             Recipe("espresso", {"water": 50, "milk": 0, "coffee": 18}, 1.5),
             Recipe("latte", {"water": 200, "milk": 150, "coffee": 24}, 2.5),
@@ -75,11 +123,26 @@ class CoffeeMachine:
         """
         Print the current resource values of the coffee machine.
         """
-        for resource in self.resources:
+        for resource in self.storage.resources:  # Access resources from storage
             if resource.name == "money":
                 print(f"Money: ${resource.amount}")
             else:
                 print(f"{resource.name.capitalize()}: {resource.amount}ml")
+
+    def get_report(self):
+        """
+        Generate the current resource values of the coffee machine as a string.
+
+        Returns:
+        str: The current resource values.
+        """
+        report = ""
+        for resource in self.storage.resources:  # Access resources from storage
+            if resource.name == "money":
+                report += f"Money: ${resource.amount}\n"
+            else:
+                report += f"{resource.name.capitalize()}: {resource.amount}ml\n"
+        return report
 
     def check_resources(self, drink):
         """
@@ -93,11 +156,10 @@ class CoffeeMachine:
         """
         for item in self.menu:
             if item.name == drink:
-                for ingredient, amount in item.ingredients.items():
-                    for resource in self.resources:
-                        if resource.name == ingredient and resource.amount < amount:
-                            print(f"Sorry there is not enough {ingredient}.")
-                            return False
+                for ingredient in item.ingredients:
+                    if not self.storage.has_enough_resource(ingredient.name, ingredient.amount):
+                        print(f"Sorry there is not enough {ingredient.name}.")
+                        return False
         return True
 
     def process_coins(self):
@@ -128,9 +190,7 @@ class CoffeeMachine:
         if money_received >= drink_cost:
             change = round(money_received - drink_cost, 2)
             print(f"Here is ${change} in change.")
-            for resource in self.resources:
-                if resource.name == "money":
-                    resource.amount += drink_cost
+            self.storage.deduct_resource("money", -drink_cost)  # Add money to storage
             return True
         else:
             print("Sorry that's not enough money. Money refunded.")
@@ -145,10 +205,8 @@ class CoffeeMachine:
         """
         for item in self.menu:
             if item.name == drink:
-                for ingredient, amount in item.ingredients.items():
-                    for resource in self.resources:
-                        if resource.name == ingredient:
-                            resource.amount -= amount
+                for ingredient in item.ingredients:
+                    self.storage.deduct_resource(ingredient.name, ingredient.amount)
         print(f"Here is your {drink}. Enjoy!")
 
     def start(self):

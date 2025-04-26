@@ -24,3 +24,10 @@ Coffee Machine Program Requirements
    b. Once all resources have been deducted, tell the user “Here is your latte. Enjoy!”. If latte was their choice of drink.
 
 Note: The resources and menu should be represented using the `Resource` and `Recipe` classes.
+
+#### UI Requirements
+1. Create a UI with a select box for the menu.
+2. Provide inputs for the money (quarters, dimes, nickles, pennies).
+3. When the user clicks on the "Pay" button, the result will show in a popup.
+4. Create a button to show the report.
+
