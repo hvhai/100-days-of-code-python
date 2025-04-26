@@ -228,6 +228,100 @@ class CoffeeMachine:
             else:
                 print("Invalid choice. Please choose again.")
 
+
+class CoffeeMachineUI:
+    """
+    A class to represent the Coffee Machine UI.
+    """
+
+    def __init__(self, coffee_machine):
+        """
+        Initialize the Coffee Machine UI.
+
+        Parameters:
+        coffee_machine (CoffeeMachine): The CoffeeMachine instance to interact with.
+        """
+        self.coffee_machine = coffee_machine
+        self.window = Tk()
+        self.window.title("Coffee Machine")
+
+        # Dropdown menu for drink selection
+        self.selected_drink = StringVar(self.window)
+        self.selected_drink.set("Select a drink")
+        self.drink_menu = OptionMenu(self.window, self.selected_drink, *[item.name for item in coffee_machine.menu])
+        self.drink_menu.grid(row=0, column=0, columnspan=2, pady=10)
+
+        # Coin inputs
+        Label(self.window, text="Quarters:").grid(row=1, column=0)
+        self.quarters_input = Entry(self.window)
+        self.quarters_input.grid(row=1, column=1)
+
+        Label(self.window, text="Dimes:").grid(row=2, column=0)
+        self.dimes_input = Entry(self.window)
+        self.dimes_input.grid(row=2, column=1)
+
+        Label(self.window, text="Nickles:").grid(row=3, column=0)
+        self.nickles_input = Entry(self.window)
+        self.nickles_input.grid(row=3, column=1)
+
+        Label(self.window, text="Pennies:").grid(row=4, column=0)
+        self.pennies_input = Entry(self.window)
+        self.pennies_input.grid(row=4, column=1)
+
+        # Pay button
+        self.pay_button = Button(self.window, text="Pay", command=self.process_payment)
+        self.pay_button.grid(row=5, column=0, columnspan=2, pady=10)
+
+        # Report button
+        self.report_button = Button(self.window, text="Report", command=self.show_report)
+        self.report_button.grid(row=6, column=0, columnspan=2, pady=10)
+
+    def process_payment(self):
+        """
+        Process the payment and make the selected drink.
+        """
+        drink = self.selected_drink.get()
+        if drink == "Select a drink":
+            messagebox.showerror("Error", "Please select a drink.")
+            return
+
+        try:
+            quarters = int(self.quarters_input.get() or 0)
+            dimes = int(self.dimes_input.get() or 0)
+            nickles = int(self.nickles_input.get() or 0)
+            pennies = int(self.pennies_input.get() or 0)
+        except ValueError:
+            messagebox.showerror("Error", "Please enter valid coin amounts.")
+            return
+
+        total_money = quarters * 0.25 + dimes * 0.10 + nickles * 0.05 + pennies * 0.01
+
+        if self.coffee_machine.check_resources(drink):
+            drink_cost = next(item.cost for item in self.coffee_machine.menu if item.name == drink)
+            if self.coffee_machine.transaction_successful(total_money, drink_cost):
+                self.coffee_machine.make_coffee(drink)
+                messagebox.showinfo("Success", f"Here is your {drink}. Enjoy!")
+            else:
+                messagebox.showerror("Error", "Not enough money. Money refunded.")
+        else:
+            messagebox.showerror("Error", f"Not enough resources to make {drink}.")
+
+    def show_report(self):
+        """
+        Display the current resource report in a popup.
+        """
+        report = self.coffee_machine.get_report()
+        messagebox.showinfo("Report", report)
+
+    def run(self):
+        """
+        Run the Coffee Machine UI.
+        """
+        self.window.mainloop()
+
+
 if __name__ == "__main__":
     machine = CoffeeMachine()
-    machine.start()
+    ui = CoffeeMachineUI(machine)
+    ui.run()
+

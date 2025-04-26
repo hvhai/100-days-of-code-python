@@ -26,8 +26,9 @@ Coffee Machine Program Requirements
 Note: The resources and menu should be represented using the `Resource` and `Recipe` classes.
 
 #### UI Requirements
-1. Create a UI with a select box for the menu.
-2. Provide inputs for the money (quarters, dimes, nickles, pennies).
-3. When the user clicks on the "Pay" button, the result will show in a popup.
-4. Create a button to show the report.
-
+1. Create a UI with a dropdown menu for selecting a drink.
+2. Provide input fields for the money (quarters, dimes, nickles, pennies).
+3. Add a "Pay" button to process the payment and make the selected drink.
+4. Add a "Report" button to display the current resource report in a popup.
+5. Show error messages for invalid inputs or insufficient resources.
+6. Show success messages when a drink is successfully made.
