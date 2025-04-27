@@ -21,10 +21,15 @@ class QuizGame:
 
     def run(self):
         for index, item in enumerate(self.questions):
+            print(f"Question {index + 1}/{len(self.questions)}")
             answer = input(item.question)
             if item.is_correct(answer):
+                print("You got it right")
                 self.score += 1
-        print(f"you got {self.score} score")
+            else:
+                print("That's incorrect")
+            print(f"Your current score is {self.score}")
+        print(f"You got {self.score} score")
 
 
 def load_question():
