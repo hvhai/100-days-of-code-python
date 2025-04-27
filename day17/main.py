@@ -18,18 +18,28 @@ class QuizGame:
     def __init__(self, questions):
         self.questions = questions
         self.score = 0
+        self.latest_question_index = 0
 
     def run(self):
-        for index, item in enumerate(self.questions):
-            print(f"Question {index + 1}/{len(self.questions)}")
-            answer = input(item.question)
-            if item.is_correct(answer):
+        while self.has_more_questions():
+            quiz_item = self.get_next_question()
+            answer = input(quiz_item.question)
+            if quiz_item.is_correct(answer):
                 print("You got it right")
                 self.score += 1
             else:
                 print("That's incorrect")
             print(f"Your current score is {self.score}")
-        print(f"You got {self.score} score")
+        print(f"You got {self.score} scores")
+
+    def get_next_question(self):
+        print(f"Question {self.latest_question_index + 1}/{len(self.questions)}")
+        quiz_item = self.questions[self.latest_question_index]
+        self.latest_question_index += 1
+        return quiz_item
+
+    def has_more_questions(self):
+        return self.latest_question_index < len(self.questions)
 
 
 def load_question():
