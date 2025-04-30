@@ -1,5 +1,5 @@
 import time
-from turtle import Turtle, Screen, width
+from turtle import Turtle, Screen
 
 MOVE_DISTANCE = 20
 
@@ -44,6 +44,22 @@ class Snake:
             case _:
                 self.head.forward(MOVE_DISTANCE)
 
+    def up(self):
+        if self.head.heading() != 270:
+            self.head.setheading(90)
+
+    def down(self):
+        if self.head.heading() != 90:
+            self.head.setheading(270)
+
+    def left(self):
+        if self.head.heading() != 0:
+            self.head.setheading(180)
+
+    def right(self):
+        if self.head.heading() != 180:
+            self.head.setheading(0)
+
 
 screen = Screen()
 screen.setup(width=800, height=600)
@@ -51,19 +67,16 @@ screen.tracer(0)
 
 snake = Snake(screen_width=800, screen_hight=600)
 
-
-def calculate_x(x):
-    return x + 20 if x < 400 else -400
-
-
-def calculate_next_position(x, y):
-    return (calculate_x(x), y)
-
+screen.onkey(key="Left", fun=snake.left)
+screen.onkey(key="Right", fun=snake.right)
+screen.onkey(key="Up", fun=snake.up)
+screen.onkey(key="Down", fun=snake.down)
+screen.listen()
 
 is_game_running = True
 while is_game_running:
     screen.update()
     snake.move()
-    time.sleep(0.5)
+    time.sleep(0.1)
 
 screen.exitonclick()
