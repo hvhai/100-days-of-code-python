@@ -1,8 +1,4 @@
-import random
-import time
-from turtle import Turtle, Screen, ycor
-
-from requests import head
+from turtle import Turtle
 
 MOVE_DISTANCE = 20
 
@@ -62,57 +58,3 @@ class Snake:
     def right(self):
         if self.head.heading() != 180:
             self.head.setheading(0)
-
-
-class Scoreboard:
-    def __init__(self):
-        self.score = 0
-        self.display = Turtle()
-        self.display.penup()
-        self.display.goto(0, 250)
-        self.display.hideturtle()
-        self.update_score()
-
-    def update_score(self):
-        self.display.clear()
-        self.display.write(f"Score: {self.score}", align="center", font=("Arial", 16, "normal"))
-
-    def increase_score(self):
-        self.score += 1
-        self.update_score()
-
-
-def is_in_range(number, range_start, range_end):
-    return range_start <= number <= range_end
-
-
-screen = Screen()
-screen.setup(width=800, height=600)
-screen.tracer(0)
-
-
-scoreboard = Scoreboard()
-snake = Snake(screen_width=800, screen_hight=600)
-
-mouse = Turtle()
-mouse.penup()
-mouse.goto(random.randint(-380, 380), random.randint(-280, 280))
-mouse.shape("square")
-
-screen.onkey(key="Left", fun=snake.left)
-screen.onkey(key="Right", fun=snake.right)
-screen.onkey(key="Up", fun=snake.up)
-screen.onkey(key="Down", fun=snake.down)
-screen.listen()
-
-is_game_running = True
-while is_game_running:
-    screen.update()
-    snake.move()
-    if is_in_range(snake.head.xcor(), mouse.xcor() - 20, mouse.xcor() + 20) and \
-            is_in_range(snake.head.ycor(), mouse.ycor() - 20, mouse.ycor() + 20):
-        scoreboard.increase_score()
-        mouse.goto(random.randint(-380, 380), random.randint(-280, 280))
-    time.sleep(0.1)
-
-screen.exitonclick()
